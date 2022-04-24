@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.democommerce1.dao.CyGoodsMapper">
+  <resultMap id="BaseResultMap" type="com.example.democommerce1.domain.CyGoods">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="goods_name" jdbcType="VARCHAR" property="goodsName" />
+    <result column="cate_id" jdbcType="INTEGER" property="cateId" />
+    <result column="price" jdbcType="BIGINT" property="price" />
+    <result column="original" jdbcType="BIGINT" property="original" />
+    <result column="tags" jdbcType="VARCHAR" property="tags" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="summary" jdbcType="VARCHAR" property="summary" />
+    <result column="is_sale" jdbcType="TINYINT" property="isSale" />
+    <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="updated_at" jdbcType="TIMESTAMP" property="updatedAt" />
+  </resultMap>
+  <resultMap id="selectGoodsSortCityResultMap" type="com.example.democommerce1.vo.selectGoodsSortCityVO">
+    <id column="id" property="id"/>
+    <result column="goods_name" property="goodsName"/>
+    <result column="cate_id" property="cateId"/>
+    <result column="price" property="price"/>
+    <result column="original" property="original"/>
+    <result column="tags" property="tags"/>
+    <result column="content" property="content"/>
+    <result column="summary" property="summary"/>
+    <result column="is_sale" property="isSale"/>
+  </resultMap>
+  <select id="selectGoodsSortCity" resultMap="selectGoodsSortCityResultMap">
+    select cg.id,
+           cg.goods_name,
+           cg.cate_id,
+           cg.price,
+           cg.original,
+           cg.tags,
+           cg.content,
+           cg.summary,
+           cg.is_sale
+    from cy_categories as ca
+           inner join cy_goods as cg on ca.id = cg.cate_id
+           left join cy_city_priority ccp on ccp.city_id = #{cityId} and ca.id = ccp.cate_id
+    order by case when ccp.id is null then 99 else ccp.sort end ,ca.sort;
+  </select>
+  <select id="selectGoods" resultMap="selectGoodsSortCityResultMap">
+    select id,
+           goods_name,
+           cate_id,
+           price,
+           original,
+           tags,
+           content,
+           summary,
+           is_sale
+    from  cy_goods
+  </select>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, goods_name, cate_id, price, original, tags, content, summary, is_sale, created_at, 
+    updated_at
+  </sql>
+  <select id="selectByExample" parameterType="com.example.democommerce1.domain.CyGoodsExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from cy_goods
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from cy_goods
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from cy_goods
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.example.democommerce1.domain.CyGoodsExample">
+    delete from cy_goods
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.example.democommerce1.domain.CyGoods">
+    insert into cy_goods (id, goods_name, cate_id, 
+      price, original, tags, 
+      content, summary, is_sale, 
+      created_at, updated_at)
+    values (#{id,jdbcType=INTEGER}, #{goodsName,jdbcType=VARCHAR}, #{cateId,jdbcType=INTEGER}, 
+      #{price,jdbcType=BIGINT}, #{original,jdbcType=BIGINT}, #{tags,jdbcType=VARCHAR}, 
+      #{content,jdbcType=VARCHAR}, #{summary,jdbcType=VARCHAR}, #{isSale,jdbcType=TINYINT}, 
+      #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.example.democommerce1.domain.CyGoods">
+    insert into cy_goods
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="goodsName != null">
+        goods_name,
+      </if>
+      <if test="cateId != null">
+        cate_id,
+      </if>
+      <if test="price != null">
+        price,
+      </if>
+      <if test="original != null">
+        original,
+      </if>
+      <if test="tags != null">
+        tags,
+      </if>
+      <if test="content != null">
+        content,
+      </if>
+      <if test="summary != null">
+        summary,
+      </if>
+      <if test="isSale != null">
+        is_sale,
+      </if>
+      <if test="createdAt != null">
+        created_at,
+      </if>
+      <if test="updatedAt != null">
+        updated_at,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="goodsName != null">
+        #{goodsName,jdbcType=VARCHAR},
+      </if>
+      <if test="cateId != null">
+        #{cateId,jdbcType=INTEGER},
+      </if>
+      <if test="price != null">
+        #{price,jdbcType=BIGINT},
+      </if>
+      <if test="original != null">
+        #{original,jdbcType=BIGINT},
+      </if>
+      <if test="tags != null">
+        #{tags,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="summary != null">
+        #{summary,jdbcType=VARCHAR},
+      </if>
+      <if test="isSale != null">
+        #{isSale,jdbcType=TINYINT},
+      </if>
+      <if test="createdAt != null">
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null">
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.example.democommerce1.domain.CyGoodsExample" resultType="java.lang.Long">
+    select count(*) from cy_goods
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update cy_goods
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.goodsName != null">
+        goods_name = #{record.goodsName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.cateId != null">
+        cate_id = #{record.cateId,jdbcType=INTEGER},
+      </if>
+      <if test="record.price != null">
+        price = #{record.price,jdbcType=BIGINT},
+      </if>
+      <if test="record.original != null">
+        original = #{record.original,jdbcType=BIGINT},
+      </if>
+      <if test="record.tags != null">
+        tags = #{record.tags,jdbcType=VARCHAR},
+      </if>
+      <if test="record.content != null">
+        content = #{record.content,jdbcType=VARCHAR},
+      </if>
+      <if test="record.summary != null">
+        summary = #{record.summary,jdbcType=VARCHAR},
+      </if>
+      <if test="record.isSale != null">
+        is_sale = #{record.isSale,jdbcType=TINYINT},
+      </if>
+      <if test="record.createdAt != null">
+        created_at = #{record.createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updatedAt != null">
+        updated_at = #{record.updatedAt,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update cy_goods
+    set id = #{record.id,jdbcType=INTEGER},
+      goods_name = #{record.goodsName,jdbcType=VARCHAR},
+      cate_id = #{record.cateId,jdbcType=INTEGER},
+      price = #{record.price,jdbcType=BIGINT},
+      original = #{record.original,jdbcType=BIGINT},
+      tags = #{record.tags,jdbcType=VARCHAR},
+      content = #{record.content,jdbcType=VARCHAR},
+      summary = #{record.summary,jdbcType=VARCHAR},
+      is_sale = #{record.isSale,jdbcType=TINYINT},
+      created_at = #{record.createdAt,jdbcType=TIMESTAMP},
+      updated_at = #{record.updatedAt,jdbcType=TIMESTAMP}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.example.democommerce1.domain.CyGoods">
+    update cy_goods
+    <set>
+      <if test="goodsName != null">
+        goods_name = #{goodsName,jdbcType=VARCHAR},
+      </if>
+      <if test="cateId != null">
+        cate_id = #{cateId,jdbcType=INTEGER},
+      </if>
+      <if test="price != null">
+        price = #{price,jdbcType=BIGINT},
+      </if>
+      <if test="original != null">
+        original = #{original,jdbcType=BIGINT},
+      </if>
+      <if test="tags != null">
+        tags = #{tags,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="summary != null">
+        summary = #{summary,jdbcType=VARCHAR},
+      </if>
+      <if test="isSale != null">
+        is_sale = #{isSale,jdbcType=TINYINT},
+      </if>
+      <if test="createdAt != null">
+        created_at = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null">
+        updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.example.democommerce1.domain.CyGoods">
+    update cy_goods
+    set goods_name = #{goodsName,jdbcType=VARCHAR},
+      cate_id = #{cateId,jdbcType=INTEGER},
+      price = #{price,jdbcType=BIGINT},
+      original = #{original,jdbcType=BIGINT},
+      tags = #{tags,jdbcType=VARCHAR},
+      content = #{content,jdbcType=VARCHAR},
+      summary = #{summary,jdbcType=VARCHAR},
+      is_sale = #{isSale,jdbcType=TINYINT},
+      created_at = #{createdAt,jdbcType=TIMESTAMP},
+      updated_at = #{updatedAt,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>
